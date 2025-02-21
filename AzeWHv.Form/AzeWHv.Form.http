@@ -1,0 +1,6 @@
+@AzeWHv.Form_HostAddress = http://localhost:5068
+
+GET {{AzeWHv.Form_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
