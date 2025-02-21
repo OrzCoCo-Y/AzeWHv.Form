@@ -6,6 +6,7 @@
     <title>Demo</title>
     <!-- 请勿在项目正式环境中引用该 layui.css 地址 -->
     <link href="layui/css/layui.css" rel="stylesheet" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
         .announcement {
             margin: 20px 0;
@@ -80,7 +81,7 @@
                     <p class="notice_p">多次填写将以最后一次填写为准</p>
                 </div>
 
-                <form class="layui-form">
+                <form class="layui-form" id="myForm">
                     <header class="layui-form-item">
 
                         <br>
@@ -205,7 +206,7 @@
                     </div>
                     <div class="layui-form-item">
                         <div class="layui-input-block">
-                            <button class="layui-btn" lay-submit lay-filter="formDemo" style="width: 100%;">提交</button>
+                            <button class="layui-btn" type="button" id="submitBtn" style="width: 100%;">提交</button>
                         </div>
                     </div>
                 </form>
@@ -214,56 +215,218 @@
     </div>
     <script src="layui/layui.js"></script>
     <script>
-        layui.use(function () {
-            var form = layui.form;
+        $(document).ready(function () {
+            $('#submitBtn').click(function () {
+                // 收集表单数据
+                var formData = {};
+                $('#myForm').serializeArray().forEach(function (item) {
+                    formData[item.name] = item.value;
+                });
 
-            form.on('submit(formDemo)', async function (data) {
-                const fields = data.field;
-                const dateFields = ['passportExpireDate', 'birthday', 'idStart', 'idEnd'];
-
+                // 处理日期字段
+                const dateFields = ['passportExpireDate', 'birthday', 'idStart', 'idEnd', 'nzVisitTime'];
                 dateFields.forEach(field => {
-                    if (fields[field]) {
-                        fields[field] = new Date(fields[field]).toISOString();
+                    if (formData[field]) {
+                        formData[field] = new Date(formData[field]).toISOString(); // 转换为 ISO 8601 格式
+                    } else {
+                        delete formData[field]; // 如果没有值，则删除该字段
                     }
                 });
 
-                if (!fields['nzVisitTime']) {
-                    delete fields['nzVisitTime'];
-                } else {
-                    fields['nzVisitTime'] = new Date(fields['nzVisitTime']).toISOString();
-                }
-
-                try {
-                    const response = await fetch('https://localhost:7111/api/CustomInfo/CustomerInfo', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(fields)
-                    });
-
-                    const result = await response.json();
-                    console.log('Success:', result);
-                    layer.msg('提交成功！');
-                } catch (error) {
-                    console.error('Error:', error);
-                    layer.msg('提交失败，请重试！');
-                }
-
-                return false;
+                $.ajax({
+                    url: 'https://localhost:7111/api/CustomInfo/CustomerInfo',
+                    type: 'POST',
+                    contentType: 'application/json', // 设置内容类型为 JSON
+                    data: JSON.stringify(formData), // 将数据转换为 JSON 字符串
+                    success: function (response) {
+                        console.log('Success:', response);
+                        layer.msg('提交成功！', { icon: 1, time: 5000 });
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error:', error);
+                        layer.msg('提交失败，请联系客服！', { icon: 2, time: 5000 });
+                    }
+                });
             });
 
-            form.on('radio(demo-radio-filter)', function (data) {
-                document.getElementById('nzVisitTimeContainer').style.display = data.value === 'Yes' ? 'block' : 'none';
+            layui.use(['form'], function () {
+                var form = layui.form;
+                form.on('radio(demo-radio-filter)', function (data) {
+                    document.getElementById('nzVisitTimeContainer').style.display = data.value === 'Yes' ? 'block' : 'none';
+                });
             });
-        });
 
-        document.querySelectorAll('input[type="date"]').forEach(function (input) {
-            input.addEventListener('focus', function () {
-                this.showPicker();
+            document.querySelectorAll('input[type="date"]').forEach(function (input) {
+                input.addEventListener('focus', function () {
+                    this.showPicker();
+                });
             });
         });
     </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 </body>
 </html>
 

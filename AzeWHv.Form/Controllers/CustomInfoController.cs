@@ -27,7 +27,8 @@ namespace AzeWHv.Form.Controllers
         {
             _context.CustomInfos.Add(customInfo);
             _context.SaveChanges();
-            return Ok();
+            var newOne = _context.CustomInfos.Find(customInfo.CustomId);
+            return Ok(newOne);
         }
 
         [HttpGet]
